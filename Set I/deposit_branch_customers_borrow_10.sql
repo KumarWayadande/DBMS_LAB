@@ -1,0 +1,14 @@
+-- Create the following tables. And Solve following queries by SQL
+-- 1. Deposit (actno,cname,bname,amount,adate)
+-- 2. Branch (bname,city)
+-- 3. Customers (cname, city)
+-- 4. Borrow(loanno,cname,bname, amount)
+-- Add primary key and foreign key wherever applicable.
+-- Insert data into the above created tables.
+-- a. Display names of all branches located in city Bombay.
+-- b. Display account no. and amount of depositors.
+-- c. Update the city of customers Anil from Pune to Mumbai
+-- d. Find the number of depositors in the bank
+-- e. Calculate Min,Max amount of customers.
+-- f. Create an index on deposit table
+-- g. Create View on Borrow table.
