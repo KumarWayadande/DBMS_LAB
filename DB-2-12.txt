@@ -1,0 +1,66 @@
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY, dept_id INT, emp_name VARCHAR(100),DoJ DATE,  salary DECIMAL(10, 2), commission DECIMAL(10, 2),job_title VARCHAR(100));
+-----------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE job_history (emp_id INT, old_job_title VARCHAR(100),old_dept_id INT,start_date DATE, end_date DATE);
+----------------------------------------------------------------------------------------------------------------------------
+Trigger to Ensure Salary is Not Decreased
+
+
+DELIMITER //
+
+CREATE TRIGGER salary_check_trigger
+BEFORE UPDATE ON Employee
+FOR EACH ROW
+BEGIN
+    IF NEW.salary < OLD.salary THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Salary cannot be decreased';
+    END IF;
+END;
+//
+
+DELIMITER ;
+-----------------------------------------------------------------------------------------------------------------------------
+Trigger to Insert into job_history When Job Title is Changed
+
+DELIMITER //
+
+CREATE TRIGGER job_title_change_trigger
+AFTER UPDATE ON Employee
+FOR EACH ROW
+BEGIN
+    IF OLD.job_title != NEW.job_title THEN
+        INSERT INTO job_history (emp_id, old_job_title, old_dept_id, start_date, end_date)
+        VALUES (OLD.emp_id, OLD.job_title, OLD.dept_id, OLD.DoJ, CURDATE());
+    END IF;
+END;
+//
+
+DELIMITER ;
+-----------------------------------------------------------------------------------------------------------------------------
+Sample Data for Employee Table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES
+(1, 101, 'John Doe', '2020-05-15', 5000, 300, 'Software Engineer'),
+(2, 102, 'Jane Smith', '2018-03-22', 6000, 500, 'Data Analyst'),
+(3, 103, 'Alice Johnson', '2022-07-01', 4500, 250, 'HR Specialist'),
+(4, 104, 'Bob Brown', '2019-11-05', 7000, 700, 'Project Manager');
+-----------------------------------------------------------------------------------------------------------------------------
+
+Test the Salary Decrease Restriction:
+
+UPDATE Employee
+SET salary = 4000
+WHERE emp_id = 1;
+----------------------------------------------------------------------------------------------------------------------------
+Test the Job Title Change:
+
+UPDATE Employee
+SET job_title = 'Senior Software Engineer'
+WHERE emp_id = 1;
+
+--------------------------------------------------------------------------------------------------------------------------
+verify job_history Table: 
+
+SELECT * FROM job_history;
+
+

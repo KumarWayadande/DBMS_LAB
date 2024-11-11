@@ -1,0 +1,28 @@
+26. Using MapReduce in mongodb solve following queries on given below collection. 
+1. Import zip.json. 
+2. Find total population in each state. 
+
+Query 1: import the zip.json file
+	mongoimport --db your_database_name --collection zipcodes --file /path/to/zip.json;
+
+Query 2:  // Map Function
+	var mapFunction = function() {
+    	emit(this.state, this.pop);  // Emit each state's population
+	};
+
+Query 3:  // Reduce Function
+	var reduceFunction = function(key, values) {
+	    return Array.sum(values);  // Sum populations for each state
+	};
+
+Query 4:  // Run MapReduce
+	db.zipcodes.mapReduce(
+   	 mapFunction,
+    	reduceFunction,
+    	{
+       	 out: "state_population_totals"  // Output collection
+    	}
+	);
+
+Query 5:
+	db.state_population_totals.find().pretty();

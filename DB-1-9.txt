@@ -1,0 +1,171 @@
+Practical 9-9. Create the following tables. And Solve following queries by SQL
+• Deposit (actno,cname,bname,amount,adate)
+• Branch (bname,city)
+• Customers (cname, city)
+• Borrow(loanno,cname,bname, amount)
+Add primary key and foreign key wherever applicable.
+Insert data into the above created tables.
+1. Display names of depositors having amount greater than 4000.
+2. Display account date of customers Anil
+3. Display account no. and deposit amount of customers having account opened between dates 1-12-96 and 1-5-97
+4. Find the average account balance at the Perryridge branch.
+5. Find the names of all branches where the average account balance is more than $1,200.
+6. Delete depositors having deposit
+
+
+
+mysql -u root -p
+Enter password: ***************
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 16
+Server version: 8.0.39 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE BankDatabase;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> USE BankDatabase;
+Database changed
+
+mysql> CREATE TABLE Branch (
+       bname VARCHAR(50) PRIMARY KEY,
+       city VARCHAR(50));
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE Customers (
+         cname VARCHAR(50) PRIMARY KEY,
+       city VARCHAR(50)
+    );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE Deposit (
+         actno INT PRIMARY KEY,
+         cname VARCHAR(50),
+         bname VARCHAR(50),
+         amount DECIMAL(10, 2),
+         adate DATE,
+         FOREIGN KEY (cname) REFERENCES Customers(cname),
+         FOREIGN KEY (bname) REFERENCES Branch(bname)
+     );
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> CREATE TABLE Borrow (
+         loanno INT PRIMARY KEY,
+         cname VARCHAR(50),
+         bname VARCHAR(50),
+         amount DECIMAL(10, 2),
+         FOREIGN KEY (cname) REFERENCES Customers(cname),
+         FOREIGN KEY (bname) REFERENCES Branch(bname)
+     );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> INSERT INTO Branch (bname, city) VALUES
+     ('Perryridge', 'San Francisco'),
+     ('Downtown', 'New York'),
+     ('Northside', 'Chicago');
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Customers (cname, city) VALUES
+    ('John', 'San Francisco'),
+     ('Anil', 'New York'),
+     ('Alice', 'Chicago');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES
+     (1001, 'John', 'Perryridge', 5000.00, '1996-01-01'),
+     (1002, 'Anil', 'Downtown', 3000.00, '1997-04-01'),
+     (1003, 'Alice', 'Northside', 4500.00, '1996-12-15'),
+     (1004, 'John', 'Perryridge', 2000.00, '1997-05-10');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Borrow (loanno, cname, bname, amount) VALUES
+     (2001, 'John', 'Perryridge', 10000.00),
+     (2002, 'Anil', 'Downtown', 7000.00),
+     (2003, 'Alice', 'Northside', 8000.00);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT cname
+     FROM Deposit
+     WHERE amount > 4000;
++-------+
+| cname |
++-------+
+| John  |
+| Alice |
++-------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT adate
+     FROM Deposit
+     WHERE cname = 'Anil';
++------------+
+| adate      |
++------------+
+| 1997-04-01 |
++------------+
+1 row in set (0.01 sec)
+
+mysql> SELECT actno, amount
+     FROM Deposit
+     WHERE adate BETWEEN '1996-12-01' AND '1997-05-01';
++-------+---------+
+| actno | amount  |
++-------+---------+
+|  1002 | 3000.00 |
+|  1003 | 4500.00 |
++-------+---------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT AVG(amount) AS average_balance
+     FROM Deposit
+     WHERE bname = 'Perryridge';
++-----------------+
+| average_balance |
++-----------------+
+|     3500.000000 |
++-----------------+
+1 row in set (0.01 sec)
+
+mysql> SELECT AVG(amount) AS average_balance
+     FROM Deposit
+     WHERE bname = 'Perryridge';
++-----------------+
+| average_balance |
++-----------------+
+|     3500.000000 |
++-----------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT bname
+     FROM Deposit
+     GROUP BY bname
+     HAVING AVG(amount) > 1200;
++------------+
+| bname      |
++------------+
+| Downtown   |
+| Northside  |
+| Perryridge |
++------------+
+3 rows in set (0.00 sec)
+
+mysql> DELETE FROM Deposit
+     WHERE amount < 5000;
+Query OK, 3 rows affected (0.01 sec)
+
+mysql>
+mysql> CREATE VIEW DepositView AS
+     SELECT actno, cname, bname, amount, adate
+     FROM Deposit;
+Query OK, 0 rows affected (0.01 sec)

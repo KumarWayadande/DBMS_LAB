@@ -1,0 +1,211 @@
+>db.createCollection("Student");
+{ ok: 1 }
+>db.Student.insertMany([
+    { Roll_No: "A01", Name: "Alice", Class: "SE", Marks: 85, Address: "Address1", Enrolled_Courses: ["DBMS", "Math"] },
+    { Roll_No: "A02", Name: "Bob", Class: "TE", Marks: 60, Address: "Address2", Enrolled_Courses: ["TOC", "DBMS"] },
+    { Roll_No: "A03", Name: "Charlie", Class: "BE", Marks: 45, Address: "Address3", Enrolled_Courses: ["OS", "Math"] },
+    { Roll_No: "A04", Name: "David", Class: "TE", Marks: 75, Address: "Address4", Enrolled_Courses: ["DBMS", "TOC"] },
+    { Roll_No: "A05", Name: "Eve", Class: "SE", Marks: 55, Address: "Address5", Enrolled_Courses: ["AI", "DBMS"] },
+    { Roll_No: "A06", Name: "Frank", Class: "BE", Marks: 90, Address: "Address6", Enrolled_Courses: ["Math", "TOC"] },
+    { Roll_No: "A07", Name: "Grace", Class: "TE", Marks: 30, Address: "Address7", Enrolled_Courses: ["DBMS", "AI"] },
+    { Roll_No: "A08", Name: "Hank", Class: "SE", Marks: 20, Address: "Address8", Enrolled_Courses: ["Math", "TOC"] },
+    { Roll_No: "A09", Name: "Ivy", Class: "BE", Marks: 65, Address: "Address9", Enrolled_Courses: ["DBMS", "OS"] },
+    { Roll_No: "A10", Name: "Jack", Class: "TE", Marks: 95, Address: "Address10", Enrolled_Courses: ["TOC", "AI"] }
+]);
+
+>db.Student.find(
+    { Enrolled_Courses: { $in: ["DBMS", "TOC"] } },
+    { Name: 1, _id: 0 }
+);
+>{
+  Name: 'Alice'
+}
+{
+  Name: 'Bob'
+}
+{
+  Name: 'David'
+}
+{
+  Name: 'Eve'
+}
+{
+  Name: 'Frank'
+}
+{
+  Name: 'Grace'
+}
+{
+  Name: 'Hank'
+}
+{
+  Name: 'Ivy'
+}
+{
+  Name: 'Jack New'
+}
+{
+  Name: 'Alice'
+}
+{
+  Name: 'Bob'
+}
+{
+  Name: 'David'
+}
+{
+  Name: 'Eve'
+}
+{
+  Name: 'Frank'
+}
+{
+  Name: 'Alice'
+}
+{
+  Name: 'Bob'
+}
+{
+  Name: 'David'
+}
+{
+  Name: 'Eve'
+}
+{
+  Name: 'Frank'
+}
+{
+  Name: 'Grace'
+}
+Type "it" for more
+>db.Student.find(
+    { $or: [{ Marks: { $gt: 50 } }, { Class: "TE" }] },
+    { Roll_No: 1, Class: 1, _id: 0 }
+);
+>{
+  Roll_No: 'A01',
+  Class: 'SE'
+}
+{
+  Roll_No: 'A02',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A04',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A05',
+  Class: 'SE'
+}
+{
+  Roll_No: 'A06',
+  Class: 'BE'
+}
+{
+  Roll_No: 'A07',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A09',
+  Class: 'BE'
+}
+{
+  Roll_No: 'A10',
+  Class: 'BE'
+}
+{
+  Roll_No: 'A01',
+  Class: 'SE'
+}
+{
+  Roll_No: 'A02',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A04',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A05',
+  Class: 'SE'
+}
+{
+  Roll_No: 'A06',
+  Class: 'BE'
+}
+{
+  Roll_No: 'A01',
+  Class: 'SE'
+}
+{
+  Roll_No: 'A02',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A04',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A05',
+  Class: 'SE'
+}
+{
+  Roll_No: 'A06',
+  Class: 'BE'
+}
+{
+  Roll_No: 'A07',
+  Class: 'TE'
+}
+{
+  Roll_No: 'A09',
+  Class: 'BE'
+}
+Type "it" for more
+
+>db.Student.updateOne(
+    { Roll_No: "A10" },
+    {
+        $set: {
+            Name: "Jack New",
+            Class: "BE",
+            Marks: 88,
+            Address: "New Address",
+            Enrolled_Courses: ["DBMS", "AI", "Math"]
+        }
+    }
+);
+>{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 0,
+  upsertedCount: 0
+}
+
+>db.Student.find({}, { Name: 1, Marks: 1, _id: 0 })
+    .sort({ Marks: -1 })
+    .skip(2)
+    .limit(2);
+{
+  Name: 'Frank',
+  Marks: 90
+}
+{
+  Name: 'Frank',
+  Marks: 90
+}
+>db.Student.deleteMany( { Marks: { $lt: 20 } } );
+
+>{
+  acknowledged: true,
+  deletedCount: 0
+}
+
+>db.Student.deleteOne({});
+
+>{
+  acknowledged: true,
+  deletedCount: 1
+}

@@ -1,0 +1,164 @@
+9. Problem Statement 9 (Cursors)
+Consider a table Employee with schema as Employee (Emp_id, Emp_Name,Salary).
+1. Write an explicit cursor to display records of all employees with salary greater than 50,000.
+2. Write a PL/SQL block of code using Implicit Cursor that will display total number of tuples in Employee
+table.
+3. Write a PL/SQL block of code using Parameterized Cursor that will display salary of employee id entered by
+the user.
+----------------------------------------------------------------------------------------------------------
+
+mysql> create database sst;
+mysql> use sst;
+Database changed
+mysql> CREATE TABLE Employee (
+         Emp_id INT PRIMARY KEY,
+         Emp_Name VARCHAR(100),
+         Salary DECIMAL(10, 2)
+     );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (1, 'Rajesh Kumar', 60000.00);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (2, 'Priya Sharma', 45000.00);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (3, 'Amit Verma', 70000.00);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (4, 'Suman Patel', 55000.00);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (5, 'Neha Gupta', 80000.00);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (6, 'Vikram Singh', 40000.00);
+Query OK, 1 row affected (0.01 sec)
+
+mysql>
+mysql> COMMIT;
+
+mysql> DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE GetEmployeesWithHighSalary()
+     BEGIN
+         DECLARE done INT DEFAULT 0;
+         DECLARE emp_id INT;
+         DECLARE emp_name VARCHAR(100);
+         DECLARE emp_salary DECIMAL(10, 2);
+    
+         DECLARE emp_cursor CURSOR FOR
+             SELECT Emp_id, Emp_Name, Salary
+             FROM Employee
+             WHERE Salary > 50000;
+    
+         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    
+         OPEN emp_cursor;
+    
+         read_loop: LOOP
+             FETCH emp_cursor INTO emp_id, emp_name, emp_salary;
+    
+             IF done THEN
+                 LEAVE read_loop;
+             END IF;
+    
+             SELECT emp_id AS "Employee ID", emp_name AS "Employee Name", emp_salary AS "Salary";
+         END LOOP;
+    
+         CLOSE emp_cursor;
+     END$$
+Query OK, 0 rows affected (0.02 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL GetEmployeesWithHighSalary();
++-------------+---------------+----------+
+| Employee ID | Employee Name | Salary   |
++-------------+---------------+----------+
+|        NULL | NULL          | 60000.00 |
++-------------+---------------+----------+
+1 row in set (0.01 sec)
+
++-------------+---------------+----------+
+| Employee ID | Employee Name | Salary   |
++-------------+---------------+----------+
+|        NULL | NULL          | 70000.00 |
++-------------+---------------+----------+
+1 row in set (0.01 sec)
+
++-------------+---------------+----------+
+| Employee ID | Employee Name | Salary   |
++-------------+---------------+----------+
+|        NULL | NULL          | 55000.00 |
++-------------+---------------+----------+
+1 row in set (0.02 sec)
+
++-------------+---------------+----------+
+| Employee ID | Employee Name | Salary   |
++-------------+---------------+----------+
+|        NULL | NULL          | 80000.00 |
++-------------+---------------+----------+
+1 row in set (0.02 sec)
+
+mysql> DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE GetTotalEmployees()
+     BEGIN
+         DECLARE total_employees INT;
+    
+         SELECT COUNT(*) INTO total_employees
+         FROM Employee;
+    
+         SELECT total_employees AS "Total Employees";
+     END$$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> CALL GetTotalEmployees();
++-----------------+
+| Total Employees |
++-----------------+
+|               6 |
++-----------------+
+1 row in set (0.01 sec)
+
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE GetEmployeeSalaryById(IN emp_id_input INT)
+    -> BEGIN
+    DECLARE emp_salary DECIMAL(10, 2);
+    
+         DECLARE emp_cursor CURSOR FOR
+             SELECT Salary
+             FROM Employee
+             WHERE Emp_id = emp_id_input;
+    
+         DECLARE CONTINUE HANDLER FOR NOT FOUND SET emp_salary = NULL;
+    
+         OPEN emp_cursor;
+         FETCH emp_cursor INTO emp_salary;
+    
+         IF emp_salary IS NULL THEN
+             SELECT CONCAT('No employee found with ID ', emp_id_input) AS "Error";
+         ELSE
+             SELECT CONCAT('Salary of Employee ID ', emp_id_input, ' is: ', emp_salary) AS "Employee Salary";
+         END IF;
+    
+         CLOSE emp_cursor;
+     END$$
+
+
+
+
+| Employee Salary                         |
+|-----------------------------------------|
+| Salary of Employee ID 1 is: 60000.00    |
+
+
+| Error                                    |
+|------------------------------------------|
+| No employee found with ID 999            |

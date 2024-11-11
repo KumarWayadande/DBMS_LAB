@@ -1,0 +1,117 @@
+Problem Statement 20
+Implement MYSQL database connectivity with PHP.
+---------------------------------------------------------
+Steps for Ubuntu
+///////Install MySQL:
+
+sudo apt update
+sudo apt install mysql-server
+
+
+/////////Secure MySQL Installation:
+
+sudo mysql_secure_installation
+
+////////Install PHP and PHP MySQL Extension:
+
+sudo apt install php php-mysql
+
+
+///////Configure MySQL (if needed): Start the MySQL service:
+
+sudo systemctl start MySQL
+
+
+/////Log in to MySQL and create a test database and user:
+
+sudo mysql -u root -p
+
+
+////Inside MySQL:
+
+CREATE DATABASE testdb;
+CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON testdb.* TO 'testuser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+
+//////////Write PHP Code for MySQL Connectivity: Create a PHP file (dbconnect.php) with the following code:
+
+<?php
+$servername = "localhost";
+$username = "testuser";
+$password = "password";
+$dbname = "testdb";
+
+// Create connection
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+////// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+echo "Connected successfully";
+?>
+
+
+////////Test PHP Code: Place dbconnect.php in the web server directory:
+
+sudo mv dbconnect.php /var/www/html/
+
+
+//////////Restart the web server:
+
+
+sudo systemctl restart apache2
+
+
+//////Open a browser and go to http://localhost/dbconnect.php to see if it displays Connected successfully.
+
+
+
+...........................................................
+.........................................................
+...........................................................
+
+
+                                       Steps for Windows
+
+
+Install XAMPP:
+
+Download and install XAMPP (which includes MySQL and PHP) on Windows.
+Start Apache and MySQL:
+
+Open the XAMPP Control Panel and click “Start” next to both Apache and MySQL.
+Create a MySQL Database and User:
+
+Open phpMyAdmin by visiting http://localhost/phpmyadmin in your browser.
+In phpMyAdmin, create a new database (testdb), and a user (testuser) with a password (password).
+Grant the user all privileges on the testdb database.
+Write PHP Code for MySQL Connectivity:
+
+///////////Open a text editor and create a PHP file (dbconnect.php) with the following code:
+
+<?php
+$servername = "localhost";
+$username = "testuser";
+$password = "password";
+$dbname = "testdb";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+echo "Connected successfully";
+?>
+
+////////////Test PHP Code:
+
+Save dbconnect.php in the htdocs folder, typically found at C:\xampp\htdocs\.
+Open a browser and go to http://localhost/dbconnect.php.
+If the connection is successful, you should see Connected successfully displayed on the page.

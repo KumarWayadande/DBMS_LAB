@@ -1,0 +1,123 @@
+Subqueries separated by “ ****** ”
+Questions separated by “ ====== ”
+
+17. Cursor (Any Two)
+a) The bank manager has decided to activate all those accounts which were previously marked as
+inactive for performing no transaction in last 365 days. Write a PL/SQ block (using implicit
+cursor) to update the status of account, display an approximate message based on the no. of rows
+affected by the update. (Use of %FOUND, %NOTFOUND, %ROWCOUNT)
+ANSWER:-
+
+CREATE DATABASE practest;
+***********************************************************************************************
+Use practest;
+***********************************************************************************************
+CREATE TABLE accounts (
+    account_id INT AUTO_INCREMENT PRIMARY KEY,         
+    account_name VARCHAR(100) NOT NULL,                
+    status ENUM('Active', 'Inactive') DEFAULT 'Inactive', 
+    last_transaction_date DATE                          
+);
+***********************************************************************************************
+INSERT INTO accounts (account_name, status, last_transaction_date)
+VALUES
+    ('Amit Kumar', 'Inactive', '2022-10-20'),       
+    ('Priya Sharma', 'Inactive', '2023-01-15'),     
+    ('Ravi Verma', 'Active', '2024-05-10'),    
+    ('Neha Patel', 'Inactive', '2022-09-30'),      
+    ('Kiran Desai', 'Inactive', '2024-06-01'),    
+    ('Vijay Rao', 'Inactive', '2023-11-05');
+***********************************************************************************************
+DELIMITER //
+CREATE PROCEDURE ActivateInactiveAccounts()
+BEGIN
+    DECLARE v_rows_updated INT DEFAULT 0;
+
+    UPDATE accounts
+    SET status = 'Active'
+    WHERE status = 'Inactive' 
+      AND last_transaction_date <= DATE_SUB(CURDATE(), INTERVAL 365 DAY);
+      SET v_rows_updated = ROW_COUNT();
+
+    IF v_rows_updated > 0 THEN
+        SELECT CONCAT(v_rows_updated, ' accounts were activated.') AS message;
+    ELSE
+        SELECT 'No accounts were found to activate.' AS message;
+    END IF;
+END //
+DELIMITER ;
+***********************************************************************************************
+CALL ActivateInactiveAccounts();
+***********************************************************************************************
+select * from accounts;
+===============================================================================================
+===============================================================================================
+
+
+17. Cursor (Any Two)
+c)Write the PL/SQL block for following requirements using parameterized Cursor: Consider
+table EMP(e_no, d_no, Salary), department wise average salary should be inserted into new
+table dept_salary(d_no, Avg_salary)
+ANSWER:-
+
+CREATE TABLE EMP (
+    e_no INT PRIMARY KEY,    
+    d_no INT,                 
+    salary DECIMAL(10, 2)    
+);
+
+CREATE TABLE dept_salary (
+    d_no INT PRIMARY KEY,     
+    avg_salary DECIMAL(10, 2)  
+);
+**********************************************************************************************
+INSERT INTO EMP (e_no, d_no, salary) VALUES 
+    (1, 101, 5000),
+    (2, 101, 6000),
+    (3, 102, 7000),
+    (4, 102, 8000),
+    (5, 103, 7500);
+**********************************************************************************************
+DELIMITER $$
+
+CREATE PROCEDURE CalculateDeptAvgSalary()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_dno INT;
+    DECLARE v_avg_salary DECIMAL(10, 2);
+
+    DECLARE dept_cursor CURSOR FOR
+        SELECT DISTINCT d_no FROM EMP;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN dept_cursor;
+
+    read_loop: LOOP
+        FETCH dept_cursor INTO v_dno;
+
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        SELECT AVG(salary) INTO v_avg_salary
+        FROM EMP
+        WHERE d_no = v_dno;
+
+        INSERT INTO dept_salary (d_no, avg_salary)
+        VALUES (v_dno, v_avg_salary);
+
+    END LOOP;
+
+    CLOSE dept_cursor;
+
+    COMMIT;
+
+    SELECT 'Department-wise average salary has been inserted.' AS message;
+END$$
+
+DELIMITER ;
+******************************************************************************************************
+CALL CalculateDeptAvgSalary();
+******************************************************************************************************
+SELECT * FROM dept_salary;

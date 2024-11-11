@@ -1,0 +1,35 @@
+
+use social_network_db;
+
+db.Social_Media.insertMany([
+    { User_Id: 1, User_Name: "Alice", No_of_Posts: 120, No_of_Friends: 10, Friends_List: ["Bob", "Charlie", "David"], Interests: ["Music", "Travel"] },
+    { User_Id: 2, User_Name: "Bob", No_of_Posts: 85, No_of_Friends: 7, Friends_List: ["Alice", "Charlie", "Eve"], Interests: ["Photography", "Cooking"] },
+    { User_Id: 3, User_Name: "Charlie", No_of_Posts: 200, No_of_Friends: 15, Friends_List: ["Alice", "Bob", "David", "Eve"], Interests: ["Sports", "Music"] },
+    { User_Id: 4, User_Name: "David", No_of_Posts: 40, No_of_Friends: 3, Friends_List: ["Alice", "Charlie"], Interests: ["Travel", "Photography"] },
+    { User_Id: 5, User_Name: "Eve", No_of_Posts: 130, No_of_Friends: 6, Friends_List: ["Alice", "Bob", "Charlie", "David"], Interests: ["Music", "Cooking"] },
+    { User_Id: 6, User_Name: "Frank", No_of_Posts: 70, No_of_Friends: 2, Friends_List: ["Grace"], Interests: ["Fitness"] },
+    { User_Id: 7, User_Name: "Grace", No_of_Posts: 300, No_of_Friends: 12, Friends_List: ["Frank", "Eve", "Alice"], Interests: ["Art", "Travel"] },
+    { User_Id: 8, User_Name: "Hank", No_of_Posts: 50, No_of_Friends: 4, Friends_List: ["Eve", "David"], Interests: ["Technology", "Travel"] },
+    { User_Id: 9, User_Name: "Ivy", No_of_Posts: 90, No_of_Friends: 5, Friends_List: ["Alice", "Frank", "Charlie"], Interests: ["Sports", "Technology"] },
+    { User_Id: 10, User_Name: "Jack", No_of_Posts: 10, No_of_Friends: 1, Friends_List: ["Charlie"], Interests: ["Cooking"] },
+    { User_Id: 11, User_Name: "Kate", No_of_Posts: 250, No_of_Friends: 8, Friends_List: ["David", "Grace"], Interests: ["Fitness", "Travel"] },
+    { User_Id: 12, User_Name: "Leo", No_of_Posts: 140, No_of_Friends: 9, Friends_List: ["Hank", "Grace", "Kate"], Interests: ["Technology", "Art"] },
+    { User_Id: 13, User_Name: "Mona", No_of_Posts: 25, No_of_Friends: 2, Friends_List: ["Eve"], Interests: ["Cooking", "Art"] },
+    { User_Id: 14, User_Name: "Nina", No_of_Posts: 105, No_of_Friends: 7, Friends_List: ["Frank", "Alice", "David"], Interests: ["Travel", "Technology"] },
+    { User_Id: 15, User_Name: "Oscar", No_of_Posts: 150, No_of_Friends: 11, Friends_List: ["Alice", "Charlie", "David", "Hank"], Interests: ["Music", "Fitness"] },
+    { User_Id: 16, User_Name: "Paul", No_of_Posts: 55, No_of_Friends: 3, Friends_List: ["Ivy", "Nina"], Interests: ["Sports", "Art"] },
+    { User_Id: 17, User_Name: "Quinn", No_of_Posts: 110, No_of_Friends: 5, Friends_List: ["Eve", "Alice"], Interests: ["Music", "Technology"] },
+    { User_Id: 18, User_Name: "Rob", No_of_Posts: 230, No_of_Friends: 8, Friends_List: ["Jack", "Leo"], Interests: ["Fitness", "Cooking"] },
+    { User_Id: 19, User_Name: "Sara", No_of_Posts: 160, No_of_Friends: 10, Friends_List: ["Kate", "Leo", "Oscar"], Interests: ["Music", "Art"] },
+    { User_Id: 20, User_Name: "Tom", No_of_Posts: 75, No_of_Friends: 4, Friends_List: ["David", "Oscar"], Interests: ["Sports", "Technology"] }
+]);
+
+1  ) db.Social_Media.find().forEach(doc =>printjson(doc));
+
+2 ) db.Social_Media.find({ No_of_Posts: { $gt: 100 } });
+
+3) db.Social_Media.find({}, { User_Name: 1, Friends_List: 1, _id: 0 });
+
+4) db.Social_Media.find({ No_of_Friends: { $gt: 5 } }, { User_Id: 1, Friends_List: 1, _id: 0 });
+
+5) db.Social_Media.find().sort({ No_of_Posts: -1 });

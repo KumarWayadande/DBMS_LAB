@@ -1,0 +1,63 @@
+test> use library;
+switched to db library
+library> db.books.insertMany([
+...     { "title": "Book One", "author": "Author A", "pages": 200 },
+...     { "title": "Book Two", "author": "Author B", "pages": 300 },
+...     { "title": "Book Three", "author": "Author C", "pages": 150 },
+...     { "title": "Book Four", "author": "Author D", "pages": 275 },
+...     { "title": "Book Five", "author": "Author E", "pages": 220 }
+...     // Add more documents as needed
+... ]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('672ef99de9ec79521ec73bfb'),
+    '1': ObjectId('672ef99de9ec79521ec73bfc'),
+    '2': ObjectId('672ef99de9ec79521ec73bfd'),
+    '3': ObjectId('672ef99de9ec79521ec73bfe'),
+    '4': ObjectId('672ef99de9ec79521ec73bff')
+  }
+}
+
+--------------------------------------------------------------------------------------------
+
+
+library> var mapFunction = function() {
+...     var category = this.pages < 250 ? "Small" : "Big";
+...     emit(category, 1);
+... };
+
+-------------------------------------------------------------------------------------------
+
+
+library> var reduceFunction = function(key, values) {
+...     return Array.sum(values);
+... };
+
+-------------------------------------------------------------------------------------------
+
+
+library> db.books.mapReduce(
+...     mapFunction,
+...     reduceFunction,
+...     {
+...         out: "book_size_counts"
+...     }
+... );
+{ result: 'book_size_counts', ok: 1 }
+library> print("Book Size Counts:");
+Book Size Counts:
+
+
+--------------------------------------------------------------------------------------------------
+
+
+library> db.book_size_counts.find().forEach(printjson);
+{
+  _id: 'Small',
+  value: 3
+}
+{
+  _id: 'Big',
+  value: 2
+}

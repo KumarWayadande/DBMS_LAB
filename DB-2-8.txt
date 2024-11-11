@@ -1,0 +1,206 @@
+
+
+Problem Statement 8 (JOINS & SUBQUERIES USING MYSQL)
+Consider Following Schema
+Employee (Employee_id, First_name, last_name , hire_date, salary, Job_title, manager_id, department_id)
+Departments(Department_id, Department_name, Manager_id, Location_id)
+Locations(location_id ,street_address ,postal_code, city, state, country_id)
+Manager(Manager_id, Manager_name)
+Create the tables with referential integrity. Solve following queries using joins and subqueries.
+1. Write a query to find the names (first_name, last_name) and the salaries of the employees who have a
+higher salary than the employee whose last_name=''Singh”.
+2. Write a query to find the names (first_name, last_name) of the employees who have a manager and
+work for a department based in the United States.
+2. Write a query to find the names (first_name, last_name), the salary of the employees whose salary is
+greater than the average salary.
+3. Write a query to find the employee id, name (last_name) along with their manager_id, manager name
+(last_name).
+4. Find the names and hire date of the employees who were hired after 'Jones'.
+----------------------------------------------------------------------------------------------------------
+
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| ass2               |
+| ass3               |
+| assign2            |
+| db                 |
+| db1                |
+| information_schema |
+| loginpage          |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+10 rows in set (0.00 sec)
+
+mysql> use db1;
+Database changed
+mysql> CREATE TABLE Manager (
+    ->     Manager_id INT PRIMARY KEY,
+    ->     Manager_name VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE Locations (
+    ->     Location_id INT PRIMARY KEY,
+    ->     Street_address VARCHAR(100),
+    ->     Postal_code VARCHAR(20),
+    ->     City VARCHAR(50),
+    ->     State VARCHAR(50),
+    ->     Country_id CHAR(2)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE Departments (
+    ->     Department_id INT PRIMARY KEY,
+    ->     Department_name VARCHAR(50),
+    ->     Manager_id INT,
+    ->     Location_id INT,
+    ->     FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    ->     FOREIGN KEY (Location_id) REFERENCES Locations(Location_id)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql>
+mysql> CREATE TABLE Employee (
+    ->     Employee_id INT PRIMARY KEY,
+    ->     First_name VARCHAR(50),
+    ->     Last_name VARCHAR(50),
+    ->     Hire_date DATE,
+    ->     Salary DECIMAL(10, 2),
+    ->     Job_title VARCHAR(50),
+    ->     Manager_id INT,
+    ->     Department_id INT,
+    ->     FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    ->     FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> show tables;
++---------------+
+| Tables_in_db1 |
++---------------+
+| departments   |
+| employee      |
+| locations     |
+| manager       |
+| student       |
++---------------+
+5 rows in set (0.00 sec)
+
+mysql> ^C
+mysql> INSERT INTO Manager (Manager_id, Manager_name) VALUES
+    -> (1, 'Amit Sharma'),
+    -> (2, 'Priya Singh'),
+    -> (3, 'Rajesh Patel');
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id) VALUES
+    -> (1, '15 MG Road', '110001', 'New Delhi', 'Delhi', 'IN'),
+    -> (2, '22 Bhopal Road', '452010', 'Bhopal', 'Madhya Pradesh', 'IN'),
+    -> (3, '45 Juhu Beach', '400049', 'Mumbai', 'Maharashtra', 'IN');
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id) VALUES
+    -> (1, 'Software Development', 1, 1),
+    -> (2, 'Human Resources', 2, 2),
+    -> (3, 'Sales and Marketing', 3, 3);
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) VALUES
+    -> (1, 'Ravi', 'Kumar', '2020-01-15', 75000, 'Software Engineer', 1, 1),
+
+    -> (2, 'Neha', 'Singh', '2021-02-20', 80000, 'HR Manager', 2, 2),
+    -> (3, 'Amit', 'Verma', '2019-05-25', 95000, 'HR Specialist', 2, 2),
+    -> (4, 'Vikram', 'Sharma', '2020-06-10', 72000, 'Junior Developer', 1, 1),
+    -> (5, 'Anjali', 'Patel', '2021-03-18', 110000, 'Senior Engineer', 1, 1),
+    -> (6, 'Rohit', 'Joshi', '2018-07-02', 86000, 'Product Marketing Manager', 3, 3);
+Query OK, 6 rows affected (0.02 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM Employee;
++-------------+------------+-----------+------------+-----------+---------------------------+------------+---------------+
+| Employee_id | First_name | Last_name | Hire_date  | Salary    | Job_title                 | Manager_id | Department_id |
++-------------+------------+-----------+------------+-----------+---------------------------+------------+---------------+
+|           1 | Ravi       | Kumar     | 2020-01-15 |  75000.00 | Software Engineer         |          1 |             1 |
+|           2 | Neha       | Singh     | 2021-02-20 |  80000.00 | HR Manager                |          2 |             2 |
+|           3 | Amit       | Verma     | 2019-05-25 |  95000.00 | HR Specialist             |          2 |             2 |
+|           4 | Vikram     | Sharma    | 2020-06-10 |  72000.00 | Junior Developer          |          1 |             1 |
+|           5 | Anjali     | Patel     | 2021-03-18 | 110000.00 | Senior Engineer           |          1 |             1 |
+|           6 | Rohit      | Joshi     | 2018-07-02 |  86000.00 | Product Marketing Manager |          3 |             3 |
++-------------+------------+-----------+------------+-----------+---------------------------+------------+---------------+
+6 rows in set (0.01 sec)
+
+mysql> SELECT First_name, Last_name, Salary
+    -> FROM Employee
+    -> WHERE Salary > (SELECT Salary FROM Employee WHERE Last_name = 'Singh');
++------------+-----------+-----------+
+| First_name | Last_name | Salary    |
++------------+-----------+-----------+
+| Amit       | Verma     |  95000.00 |
+| Anjali     | Patel     | 110000.00 |
+| Rohit      | Joshi     |  86000.00 |
++------------+-----------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT E.First_name, E.Last_name
+    -> FROM Employee E
+    -> JOIN Departments D ON E.Department_id = D.Department_id
+    -> JOIN Locations L ON D.Location_id = L.Location_id
+    -> WHERE E.Manager_id IS NOT NULL
+    ->   AND L.Country_id = 'IN';
++------------+-----------+
+| First_name | Last_name |
++------------+-----------+
+| Ravi       | Kumar     |
+| Vikram     | Sharma    |
+| Anjali     | Patel     |
+| Neha       | Singh     |
+| Amit       | Verma     |
+| Rohit      | Joshi     |
++------------+-----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT First_name, Last_name, Salary
+    -> FROM Employee
+    -> WHERE Salary > (SELECT AVG(Salary) FROM Employee);
++------------+-----------+-----------+
+| First_name | Last_name | Salary    |
++------------+-----------+-----------+
+| Amit       | Verma     |  95000.00 |
+| Anjali     | Patel     | 110000.00 |
++------------+-----------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT E.Employee_id, E.Last_name AS Employee_Last_name, E.Manager_id, M.Manager_name AS Manager_Last_name
+    -> FROM Employee E
+    -> JOIN Manager M ON E.Manager_id = M.Manager_id;
++-------------+--------------------+------------+-------------------+
+| Employee_id | Employee_Last_name | Manager_id | Manager_Last_name |
++-------------+--------------------+------------+-------------------+
+|           1 | Kumar              |          1 | Amit Sharma       |
+|           2 | Singh              |          2 | Priya Singh       |
+|           3 | Verma              |          2 | Priya Singh       |
+|           4 | Sharma             |          1 | Amit Sharma       |
+|           5 | Patel              |          1 | Amit Sharma       |
+|           6 | Joshi              |          3 | Rajesh Patel      |
++-------------+--------------------+------------+-------------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT First_name, Last_name, Hire_date
+    -> FROM Employee
+    -> WHERE Hire_date > (SELECT Hire_date FROM Employee WHERE Last_name = 'Singh');
++------------+-----------+------------+
+| First_name | Last_name | Hire_date  |
++------------+-----------+------------+
+| Anjali     | Patel     | 2021-03-18 |
++------------+-----------+------------+
+1 row in set (0.01 sec)
+

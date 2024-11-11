@@ -1,0 +1,136 @@
+-- step 1: create the database
+
+create database emp1;
+
+use emp1;
+
+-- step 2: create the tables
+
+-- 1. employee table
+create table emp (
+    ename varchar(50) primary key,
+    street varchar(100),
+    city varchar(50)
+);
+
+-- 2. company table
+create table comp (
+    compname varchar(50) primary key,
+    city varchar(50)
+);
+
+-- 3. works table
+-- this table contains the salary and employee-company relationships
+create table works (
+    ename varchar(50),
+    compname varchar(50),
+    salary int,
+    primary key(ename, compname),
+    foreign key(ename) references emp(ename),
+    foreign key(compname) references comp(compname)
+);
+
+-- 4. manages table
+-- this table maps employees to their managers
+create table manages (
+    ename varchar(50),
+    manager_name varchar(50),
+    primary key(ename, manager_name),
+    foreign key(ename) references emp(ename),
+    foreign key(manager_name) references emp(ename)
+);
+
+-- step 3: insert data into the tables
+
+-- 1. insert data into the `emp` (employee) table
+insert into emp (ename, street, city) values
+('Rahul', 'MG Road', 'Pune'),
+('Amit', 'Shivaji Nagar', 'Mumbai'),
+('Snehal', 'Kalyani Nagar', 'Pune'),
+('Nikita', 'Fergusson College Road', 'Pune'),
+('Suresh', 'Andheri West', 'Mumbai');
+
+-- 2. insert data into the `comp` (company) table
+insert into comp (compname, city) values
+('First Bank Corporation', 'Mumbai'),
+('Tech Solutions', 'Pune'),
+('Maharashtra Pvt Ltd', 'Nagpur');
+
+-- 3. insert data into the `works` (works) table
+insert into works (ename, compname, salary) values
+('Rahul', 'First Bank Corporation', 12000),
+('Amit', 'Tech Solutions', 15000),
+('Snehal', 'First Bank Corporation', 18000),
+('Nikita', 'Maharashtra Pvt Ltd', 9500),
+('Suresh', 'Tech Solutions', 11000);
+
+-- 4. insert data into the `manages` (manages) table
+insert into manages (ename, manager_name) values
+('Rahul', 'Amit'),
+('Snehal', 'Amit'),
+('Nikita', 'Rahul'),
+('Suresh', 'Nikita');
+
+-- step 4: run the queries
+
+-- 1. find the names of all employees who work for 'First Bank Corporation'
+select ename
+from works
+where compname = 'First Bank Corporation';
+
+-- 2. find all employees who do not work for 'First Bank Corporation'
+select ename
+from works
+where compname != 'First Bank Corporation';
+
+-- 3. find the company that has the most employees
+select compname
+from works
+group by compname
+order by count(ename) desc
+limit 1;
+
+-- 4. find all companies located in every city where Small Bank Corporation is located
+select c.compname
+from comp c
+where not exists (
+    select 1
+    from comp c2
+    where c2.compname = 'Small Bank Corporation'
+    and c2.city not in (select city from comp where compname = c.compname)
+);
+
+-- 5. find details of employees having a salary greater than 10,000
+select e.ename, e.street, e.city, w.compname, w.salary
+from emp e
+join works w on e.ename = w.ename
+where w.salary > 10000;
+
+-- 6. update salary of all employees who work for 'First Bank Corporation' by 10%
+update works
+set salary = salary * 1.10
+where compname = 'First Bank Corporation';
+
+-- 7. find employee and their managers
+select w.ename, m.manager_name
+from manages m
+join works w on m.ename = w.ename;
+
+-- 8. find the names, street, and cities of employees who work for 'First Bank Corporation' and earn more than 10,000
+select e.ename, e.street, e.city
+from emp e
+join works w on e.ename = w.ename
+where w.compname = 'First Bank Corporation'
+  and w.salary > 10000;
+
+-- 9. find companies where employees earn a higher salary, on average, than the average salary at 'First Bank Corporation'
+select compname
+from works
+group by compname
+having avg(salary) > (
+    select avg(salary)
+    from works
+    where compname = 'First Bank Corporation'
+);
+
+

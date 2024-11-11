@@ -1,0 +1,77 @@
+SOLUTION FOR PROBLEM STATEMENT 6:
+______________________________________________________________________________________________________________________________________________________________________________________
+
+-- Step 1: Create the Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    dept_id INT,
+    emp_name VARCHAR(50),
+    DoJ DATE,
+    salary DECIMAL(10, 2),
+    commission DECIMAL(10, 2),  -- Initially empty (NULL)
+    job_title VARCHAR(50)
+);
+
+-- Insert sample data (example purposes)
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, job_title) VALUES
+(1, 101, 'Alice', TO_DATE('2010-01-15', 'YYYY-MM-DD'), 12000, 'Manager'),
+(2, 102, 'Bob', TO_DATE('2005-04-20', 'YYYY-MM-DD'), 9000, 'Senior Developer'),
+(3, 103, 'Charlie', TO_DATE('2021-08-01', 'YYYY-MM-DD'), 2500, 'Intern'),
+(4, 101, 'David', TO_DATE('2015-03-12', 'YYYY-MM-DD'), 5000, 'Developer');
+
+//Task 1: Stored Procedure to Record Employee Commission
+CREATE OR REPLACE PROCEDURE Update_Commission AS
+BEGIN
+    FOR emp IN (SELECT emp_id, salary, DoJ FROM Employee) LOOP
+        DECLARE
+            years_of_experience INT;
+            commission_rate DECIMAL(5, 4);
+        BEGIN
+            -- Calculate years of experience
+            years_of_experience := FLOOR(MONTHS_BETWEEN(SYSDATE, emp.DoJ) / 12);
+
+            -- Determine commission based on conditions
+            IF emp.salary > 10000 THEN
+                commission_rate := 0.004;  -- 0.4%
+            ELSIF emp.salary < 10000 AND years_of_experience > 10 THEN
+                commission_rate := 0.0035;  -- 0.35%
+            ELSIF emp.salary < 3000 THEN
+                commission_rate := 0.0025;  -- 0.25%
+            ELSE
+                commission_rate := 0.0015;  -- 0.15%
+            END IF;
+
+            -- Update the employee's commission
+            UPDATE Employee
+            SET commission = emp.salary * commission_rate
+            WHERE emp_id = emp.emp_id;
+        END;
+    END LOOP;
+
+    -- Commit the changes
+    COMMIT;
+END;
+
+EXEC Update_Commission;
+
+//Task 2: PL/SQL Function to Return Manager’s Name by Department ID
+CREATE OR REPLACE FUNCTION Get_Manager_Name(dept_id_param INT) RETURN VARCHAR2 AS
+    manager_name VARCHAR2(50);
+BEGIN
+    -- Find the name of the employee who is the manager of the given department
+    SELECT emp_name
+    INTO manager_name
+    FROM Employee
+    WHERE dept_id = dept_id_param AND job_title = 'Manager'
+    FETCH FIRST 1 ROWS ONLY; -- In case there are multiple managers, just return the first one
+
+    RETURN manager_name;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'No manager found';
+    WHEN TOO_MANY_ROWS THEN
+        RETURN 'Multiple managers found';
+END;
+
+SELECT Get_Manager_Name(101) AS Manager_Name FROM dual;
+

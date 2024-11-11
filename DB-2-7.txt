@@ -1,0 +1,99 @@
+7.Problem Statement 7 (Map Reduce)
+Create Book Collection with (Title, Author_name, Borrowed_status) as fields. Write Map Reduce Functions for
+following requirements.
+1. Display Author wise list of books.
+2. Display Author wise list of books having Borrowed status as “True”.
+3. Display Author wise list of books having price greater than 300.
+-------------------------------------------------------------------------
+
+
+1. creating database 
+
+test> use sahadevdb
+switched to db sahadevdb
+sahadevdb> db.createCollection("books")
+{ ok: 1 }
+sahadevdb> db.books.insertMany([
+   { "Title": "The Great Gatsby", "Author_name": "F. Scott Fitzgerald", "Borrowed_status": "True", "Price": 350 },
+   { "Title": "To Kill a Mockingbird", "Author_name": "Harper Lee", "Borrowed_status": "False", "Price": 200 },
+   { "Title": "1984", "Author_name": "George Orwell", "Borrowed_status": "True", "Price": 400 },
+   { "Title": "Moby Dick", "Author_name": "Herman Melville", "Borrowed_st
+atus": "False", "Price": 250 },
+{ "Title": "Brave New World", "Author_name": "Aldous Huxley", "Borrowed_status": "True", "Price": 320 }
+]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('672ef44d53b37311a70d8190'),
+    '1': ObjectId('672ef44d53b37311a70d8191'),
+    '2': ObjectId('672ef44d53b37311a70d8192'),
+    '3': ObjectId('672ef44d53b37311a70d8193'),
+    '4': ObjectId('672ef44d53b37311a70d8194')
+  }
+}
+sahadevdb> db.books.mapReduce(
+function() {
+    emit(this.Author_name, this.Title);
+ },
+   function(key, values) {
+     return values;
+   },
+   {
+     out: { inline: 1 }
+   }
+ );
+
+
+sahadevdb> db.books.mapReduce(
+  function() {
+     if (this.Borrowed_status === "True") {
+       emit(this.Author_name, this.Title);
+     }
+   },
+   function(key, values) {
+     return values;
+   },
+   {
+     out: { inline: 1 }
+   }
+ );
+
+
+
+
+sahadevdb> db.books.mapReduce(
+   function() {
+     if (this.Price > 300) {
+       emit(this.Author_name, this.Title);
+     }
+   },
+   function(key, values) {
+     return values;
+   },
+   {
+     out: { inline: 1 }
+   }
+ );
+
+sahadevdb> db.author_books.find();
+[
+  { _id: 'Harper Lee', value: [ 'To Kill a Mockingbird' ] },
+  { _id: 'Herman Melville', value: [ 'Moby Dick' ] },
+  { _id: 'Aldous Huxley', value: [ 'Brave New World' ] },
+  { _id: 'F. Scott Fitzgerald', value: [ 'The Great Gatsby' ] },
+  { _id: 'George Orwell', value: [ '1984' ] }
+]
+
+sahadevdb> db.author_books_above_300.find();
+[
+  { _id: 'George Orwell', value: [ '1984' ] },
+  { _id: 'F. Scott Fitzgerald', value: [ 'The Great Gatsby' ] },
+  { _id: 'Aldous Huxley', value: [ 'Brave New World' ] }
+]
+
+sahadevdb> db.author_borrowed_books.find();
+[
+  { _id: 'George Orwell', value: [ '1984' ] },
+  { _id: 'Aldous Huxley', value: [ 'Brave New World' ] },
+  { _id: 'F. Scott Fitzgerald', value: [ 'The Great Gatsby' ] }
+]

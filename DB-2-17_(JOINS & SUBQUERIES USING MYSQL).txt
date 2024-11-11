@@ -1,0 +1,94 @@
+CREATE DATABASE _DatabaseName_
+USE _DatabaseName_
+
+CREATE TABLE Manager (
+    Manager_id INT PRIMARY KEY,
+    Manager_name VARCHAR(50)
+);
+
+INSERT INTO Manager (Manager_id, Manager_name) VALUES
+(101, 'Amit Shah'),
+(102, 'Rahul Kumar'),
+(103, 'Ravi Verma'),
+(104, 'Priya Mehta');
+
+---------------------------------------------------------------------------------------------
+
+CREATE TABLE Locations (
+    Location_id INT PRIMARY KEY,
+    Street_address VARCHAR(100),
+    Postal_code VARCHAR(20),
+    City VARCHAR(50),
+    State VARCHAR(50),
+    Country_id VARCHAR(10)
+);
+
+INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id) VALUES
+(1, '12 MG Road', '560001', 'Bangalore', 'Karnataka', 'IN'),
+(2, '45 CP Road', '110001', 'Delhi', 'Delhi', 'IN'),
+(3, '78 SB Road', '400001', 'Mumbai', 'Maharashtra', 'IN');
+
+---------------------------------------------------------------------------------------------
+
+CREATE TABLE Departments (
+    Department_id INT PRIMARY KEY,
+    Department_name VARCHAR(50),
+    Manager_id INT,
+    Location_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Location_id) REFERENCES Locations(Location_id)
+);
+
+INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id) VALUES
+(10, 'IT', 103, 1),
+(20, 'Finance', 102, 2),
+(30, 'HR', 104, 3);
+
+---------------------------------------------------------------------------------------------
+
+CREATE TABLE Employee (
+    Employee_id INT PRIMARY KEY,
+    First_name VARCHAR(50),
+    Last_name VARCHAR(50),
+    Hire_date DATE,
+    Salary DECIMAL(10,2),
+    Job_title VARCHAR(50),
+    Manager_id INT,
+    Department_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+);
+
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) VALUES
+(1, 'Raj', 'Sharma', '2005-06-15', 90000, 'Developer', 101, 10),
+(2, 'Asha', 'Singh', '2010-08-20', 85000, 'Developer', 102, 20),
+(3, 'Vikram', 'Patel', '2000-05-18', 120000, 'IT Manager', 103, 10),
+(4, 'Sunil', 'Nair', '2002-03-10', 110000, 'Senior DevOps', 104, 30),
+(5, 'Meena', 'Joshi', '2008-11-11', 75000, 'Accountant', 102, 20),
+(6, 'Arjun', 'Desai', '2015-04-25', 60000, 'HR Specialist', 104, 30);
+
+---------------------------------------------------------------------------------------------
+
+1. SELECT e.First_name, e.Last_name, e.Salary
+   FROM Employee e
+   JOIN Departments d ON e.department_id = d.department_id
+   WHERE e.Salary > (SELECT AVG(Salary) FROM Employee)
+   AND d.Department_name = 'IT';
+
+2. SELECT e.First_name, e.Last_name, e.Salary
+   FROM Employee e
+   WHERE e.Salary = (SELECT MIN(Salary) FROM Employee);
+
+3. SELECT e.Employee_id, e.First_name, e.Last_name, e.Salary
+   FROM Employee e
+   WHERE e.Salary > (SELECT AVG(Salary) FROM Employee WHERE department_id = e.department_id);
+
+4. SELECT d.Department_name, m.Manager_name, l.city
+   FROM Departments d
+   JOIN Manager m ON d.Manager_id = m.Manager_id
+   JOIN Locations l ON d.Location_id = l.Location_id;
+
+5. SELECT m.Manager_name, e.First_name, e.Last_name, e.Hire_date, e.Salary
+   FROM Employee e
+   JOIN Manager m ON e.Manager_id = m.Manager_id
+   WHERE DATEDIFF(CURDATE(), e.Hire_date) > 15 * 365;

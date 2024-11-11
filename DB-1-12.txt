@@ -1,0 +1,158 @@
+12. Create the following tables. Solve queries by SQL
+• Deposit (actno,cname,bname,amount,adate)
+• Branch (bname,city)
+• Customers (cname, city)
+• Borrow(loanno,cname,bname, amount)
+Add primary key and foreign key wherever applicable.
+Insert data into the above created tables.
+Solve following queries by SQL
+
+1. Display customer name having living city Bombay and branch city Nagpur
+2. Display customer name having same living city as their branch city
+3. Display customer name who are borrowers as well as depositors and having
+living city Nagpur.
+4. Display borrower names having deposit amount greater than 1000 and loan
+amount greater than 2000
+5. Display customer name living in the city where branch of depositor sunil is
+located.
+6. Create an index on deposit table 
+________________________________________________________________________________________________________________________________________________
+create database 12Practical;
+
+use 12Practical;
+
+CREATE TABLE Branch (
+    bname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+-- Insert data into Branch
+INSERT INTO Branch (bname, city) VALUES 
+    ('MAIN', 'Nagpur'),
+    ('DOWNTOWN', 'Bombay'),
+    ('UPTOWN', 'Pune');
+
+-- Insert data into Customers
+INSERT INTO Customers (cname, city) VALUES 
+    ('Anil', 'Bombay'),
+    ('Sunil', 'Nagpur'),
+    ('Ravi', 'Pune'),
+    ('Meena', 'Nagpur');
+
+-- Insert data into Deposit
+INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES 
+    (101, 'Anil', 'DOWNTOWN', 1500.00, '2024-01-15'),
+    (102, 'Sunil', 'MAIN', 2000.00, '2024-02-10'),
+    (103, 'Ravi', 'UPTOWN', 3000.00, '2024-03-25');
+
+-- Insert data into Borrow
+INSERT INTO Borrow (loanno, cname, bname, amount) VALUES 
+    (201, 'Anil', 'DOWNTOWN', 2500.00),
+    (202, 'Meena', 'MAIN', 500.00),
+    (203, 'Sunil', 'MAIN', 3000.00);
+
+
+
+1. Display customer name having living city Bombay and branch city Nagpur
+
+ SELECT c.cname
+ FROM Customers c
+ JOIN Deposit d ON c.cname = d.cname
+ JOIN Branch b ON d.bname = b.bname
+ WHERE c.city = 'Bombay' AND b.city = 'Nagpur';
+Empty set (0.00 sec)
+(Based on the sample data provided earlier, no record meets the condition where a customer in Bombay has a deposit in a Nagpur branch.)
+
+2. Display customer name having same living city as their branch city
+
+SELECT c.cname
+FROM Customers c
+JOIN Deposit d ON c.cname = d.cname
+JOIN Branch b ON d.bname = b.bname
+WHERE c.city = b.city;
+
++-------+
+| cname |
++-------+
+| Anil  |
+| Sunil |
+| Ravi  |
++-------+
+
+3. Display customer name who are borrowers as well as depositors and having
+living city Nagpur.
+
+SELECT c.cname
+FROM Customers c
+JOIN Deposit d ON c.cname = d.cname
+JOIN Borrow b ON c.cname = b.cname
+WHERE c.city = 'Nagpur';
+
++-------+
+| cname |
++-------+
+| Sunil |
++-------+
+
+4. Display borrower names having deposit amount greater than 1000 and loan
+amount greater than 2000
+
+SELECT DISTINCT b.cname
+FROM Borrow b
+JOIN Deposit d ON b.cname = d.cname
+WHERE d.amount > 1000 AND b.amount > 2000;
+
++-------+
+| cname |
++-------+
+| Anil  |
+| Sunil |
++-------+
+
+5. Display customer name living in the city where branch of depositor sunil is
+located.
+
+SELECT c.cname
+FROM Customers c
+JOIN Deposit d1 ON c.cname = d1.cname
+JOIN Branch b1 ON d1.bname = b1.bname
+JOIN Deposit d2 ON d2.cname = 'Sunil'
+JOIN Branch b2 ON d2.bname = b2.bname
+WHERE c.city = b2.city;
+
++-------+
+| cname |
++-------+
+| Sunil |
++-------+
+
+6. Create an index on deposit table 
+
+CREATE INDEX idx_deposit_amount ON Deposit(amount);
+
+
+

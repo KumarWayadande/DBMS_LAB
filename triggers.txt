@@ -1,0 +1,92 @@
+-- 1. creating the database and tables
+
+create database company;
+use company;
+
+create table dept (
+    deptno int primary key,
+    deptname varchar(20),
+    location varchar(30)
+);
+
+create table emp (
+    eno int primary key,
+    ename varchar(50),
+    job varchar(20),
+    hiredate date,
+    salary int,
+    commission int,
+    deptno int,
+    foreign key (deptno) references dept(deptno)
+);
+
+-- 2. inserting data into tables
+
+insert into dept values 
+(10, 'HR', 'Mumbai'),
+(20, 'Finance', 'Pune'),
+(30, 'dev', 'Nagpur'),
+(40, 'sales', 'Nashik');
+
+insert into emp values 
+(1, 'Sachin', 'Manager', '1980-06-15', 5000, 500, 10),
+(2, 'Ishwari', 'Analyst', '1981-08-20', 4000, 200, 20),
+(3, 'Madhura', 'Salesman', '1982-12-01', 2500, 300, 40),
+(4, 'Ashwini', 'Developer', '1980-05-21', 3000, null, 30),
+(5, 'Vikas', 'Salesman', '1983-10-12', 2800, 400, 40),
+(6, 'Shubhangi', 'Analyst', '1981-09-10', 3500, null, 20),
+(7, 'Rohit', 'Clerk', '1982-11-30', 1800, null, 10),
+(8, 'Amol', 'Developer', '1980-07-10', 3700, null, 30),
+(9, 'Pratik', 'Manager', '1981-02-11', 5200, 600, 10),
+(10, 'Rupali', 'Salesman', '1983-05-17', 2900, 250, 40);
+
+-- 3. example queries without error logs
+
+-- maximum salary for salesman
+select max(salary) 
+from emp 
+where job = 'Salesman';
+
+-- employees whose names start with 'I'
+select ename 
+from emp 
+where ename like 'I%';
+
+-- employees hired before a specific date
+select * 
+from emp 
+where hiredate < '1981-09-30';
+
+-- all employees ordered by salary descending
+select * 
+from emp 
+order by salary desc;
+
+-- count and average salary in department 20 (finance)
+select count(*), avg(salary) 
+from emp 
+where deptno = 20;
+
+-- employees hired in department 10 with aggregated salary data
+select hiredate, avg(salary) as avgsal, min(salary) as minsal 
+from emp 
+where deptno = 10 
+group by hiredate;
+
+-- employees with department details using join
+select e.ename, d.deptname 
+from emp e 
+join dept d on e.deptno = d.deptno;
+
+-- employees in department 'dev'
+select * 
+from emp e 
+join dept d on e.deptno = d.deptno 
+where d.deptname = 'dev';
+
+-- salary update for employees in department 10 (hr)
+update emp 
+set salary = salary * 1.05 
+where deptno = 10;
+
+

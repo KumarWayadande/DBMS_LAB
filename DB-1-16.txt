@@ -1,0 +1,122 @@
+Subqueries separated by “ ****** ”
+Questions separated by “ ====== ”
+
+16. Cursor (Any Two)
+a) The bank manager has decided to activate all those accounts which were previously marked as
+inactive for performing no transaction in last 365 days. Write a PL/SQ block (using implicit
+cursor) to update the status of account, display an approximate message based on the no. of rows
+affected by the update. (Use of %FOUND, %NOTFOUND, %ROWCOUNT)
+
+Answer:-
+CREATE DATABASE practest;
+************************************************************************************
+Use practest;
+************************************************************************************
+CREATE TABLE accounts (
+    account_id INT AUTO_INCREMENT PRIMARY KEY,         
+    account_name VARCHAR(100) NOT NULL,                
+    status ENUM('Active', 'Inactive') DEFAULT 'Inactive', 
+    last_transaction_date DATE                          
+);
+****************************************************************************************
+INSERT INTO accounts (account_name, status, last_transaction_date)
+VALUES
+    ('Amit Kumar', 'Inactive', '2022-10-20'),       
+    ('Priya Sharma', 'Inactive', '2023-01-15'),     
+    ('Ravi Verma', 'Active', '2024-05-10'),    
+    ('Neha Patel', 'Inactive', '2022-09-30'),      
+    ('Kiran Desai', 'Inactive', '2024-06-01'),    
+    ('Vijay Rao', 'Inactive', '2023-11-05');
+****************************************************************************************
+DELIMITER //
+CREATE PROCEDURE ActivateInactiveAccounts()
+BEGIN
+    DECLARE v_rows_updated INT DEFAULT 0;
+
+    UPDATE accounts
+    SET status = 'Active'
+    WHERE status = 'Inactive' 
+      AND last_transaction_date <= DATE_SUB(CURDATE(), INTERVAL 365 DAY);
+      SET v_rows_updated = ROW_COUNT();
+
+    IF v_rows_updated > 0 THEN
+        SELECT CONCAT(v_rows_updated, ' accounts were activated.') AS message;
+    ELSE
+        SELECT 'No accounts were found to activate.' AS message;
+    END IF;
+END //
+DELIMITER ;
+***********************************************************************************************
+CALL ActivateInactiveAccounts();
+***********************************************************************************************
+select * from accounts;
+
+
+==================================================================================
+16. Cursor (Any Two)
+c) Write PL/SQL block using explicit cursor for following requirements: College has decided to
+mark all those students detained (D) who are having attendance less than 75%. Whenever such
+update takes place, a record for the same is maintained in the D_Stud table. create table
+stud21(roll number(4), att number(4), status varchar(1));
+ANSWER:-
+CREATE TABLE stud21 (
+    roll INT(4) PRIMARY KEY,        
+    att INT(4),                    
+    status VARCHAR(1) DEFAULT 'N'  
+);
+*****************************************************************************************
+CREATE TABLE D_Stud (
+    roll INT(4),                   
+    detention_date DATE             
+);
+*********************************************************************************
+INSERT INTO stud21 (roll, att, status) VALUES 
+    (1001, 80, 'N'),  
+    (1002, 70, 'N'),  
+    (1003, 60, 'N'),  
+    (1004, 85, 'N'),  
+    (1005, 72, 'N');  
+**********************************************************************************
+DELIMITER //
+
+CREATE PROCEDURE MarkDetainedStudents()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE v_roll INT;
+    DECLARE v_att INT;
+
+    DECLARE cur_detained_students CURSOR FOR
+        SELECT roll, att
+        FROM stud21
+        WHERE att < 75;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN cur_detained_students;
+    read_loop: LOOP
+        FETCH cur_detained_students INTO v_roll, v_att;
+        
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        UPDATE stud21
+        SET status = 'D'
+        WHERE roll = v_roll;
+        INSERT INTO D_Stud (roll, detention_date)
+        VALUES (v_roll, CURDATE());
+    END LOOP;
+    CLOSE cur_detained_students;
+    COMMIT;
+    SELECT 'All students with attendance below 75% have been marked as detained.' AS Message;
+END //
+DELIMITER ;
+**********************************************************************************************
+CALL MarkDetainedStudents();
+**********************************************************************************************
+select * from stud21;
+
+==============================================================================================
+==============================================================================================
+
+

@@ -1,0 +1,128 @@
+11. Create the following tables. Solve queries by SQL
+• Deposit (actno,cname,bname,amount,adate)
+• Branch (bname,city)
+• Customers (cname, city)
+• Borrow(loanno,cname,bname, amount)
+Add primary key and foreign key wherever applicable.
+Insert data into the above created tables.
+a. Display account date of customers Anil.
+b. Modify the size of attribute of amount in deposit
+c. Display names of customers living in city pune.
+d. Display name of the city where branch KAROLBAGH is located.
+e. Find the number of tuples in the customer relation
+f. Delete all the record of customers Sunil
+g. Create a view on deposit table.
+________________________________________________________________________________________________________________________________________________________________________________
+
+create database 11Practical;
+
+use 11Practical;
+
+CREATE TABLE Branch (
+    bname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+--Insert Sample Data
+INSERT INTO Branch (bname, city) VALUES 
+    ('KAROLBAGH', 'Delhi'),
+    ('MGROAD', 'Pune'),
+    ('SOUTHEND', 'Mumbai');
+
+INSERT INTO Customers (cname, city) VALUES 
+    ('Anil', 'Pune'),
+    ('Sunil', 'Mumbai'),
+    ('Ravi', 'Delhi'),
+    ('Meena', 'Pune');
+
+INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES 
+    (101, 'Anil', 'MGROAD', 5000.00, '2024-01-15'),
+    (102, 'Sunil', 'SOUTHEND', 3000.00, '2024-02-10'),
+    (103, 'Ravi', 'KAROLBAGH', 7000.00, '2024-03-25');
+
+INSERT INTO Borrow (loanno, cname, bname, amount) VALUES 
+    (201, 'Anil', 'MGROAD', 1000.00),
+    (202, 'Ravi', 'KAROLBAGH', 500.00);
+
+
+a. Display account date of customers Anil.
+
+SELECT adate FROM Deposit WHERE cname = 'Anil';
++------------+
+| adate      |
++------------+
+| 2024-01-15 |
++------------+
+
+b. Modify the size of attribute of amount in deposit
+
+ALTER TABLE Deposit MODIFY amount DECIMAL(15, 2);
+
+c. Display names of customers living in city pune.
+
+SELECT cname FROM Customers WHERE city = 'Pune';
++-------+
+| cname |
++-------+
+| Anil  |
+| Meena |
++-------+
+
+d. Display name of the city where branch KAROLBAGH is located.
+
+ SELECT city FROM Branch WHERE bname = 'KAROLBAGH';
++-------+
+| city  |
++-------+
+| Delhi |
++-------+
+
+e. Find the number of tuples in the customer relation
+
+
+SELECT COUNT(*) FROM Customers;
++----------+
+| COUNT(*) |
++----------+
+|        4 |
++----------+
+
+f. Delete all the record of customers Sunil
+
+-- Delete all deposits associated with Sunil
+DELETE FROM Deposit WHERE cname = 'Sunil';
+
+-- Now delete Sunil from Customers
+DELETE FROM Customers WHERE cname = 'Sunil';
+
+g. Create a view on deposit table.
+CREATE VIEW DepositView AS
+SELECT actno, cname, bname, amount, adate FROM Deposit;
+
+
+
+

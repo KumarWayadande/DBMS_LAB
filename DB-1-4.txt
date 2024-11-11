@@ -1,0 +1,106 @@
+create database practical_4;
+use practical_4;
+create table Hotel (HotelNo int primary key, Name varchar(50), City varchar(50));
+insert into Hotel values(1,"taj","mumbai");
+insert into Hotel values(2,"foodland","pune");
+insert into Hotel values(3,"jatra","nashik");
+insert into Hotel values(4,"ganesh","pimpri");
+insert into Hotel values(5,"Grosvenor","london");
+insert into Hotel values(6,"Savory","london");
+select * from Hotel;
+create table Room (RoomNo int, HotelNo int, Type varchar(50), Price int ,primary key(RoomNo,HotelNo),foreign key
+(HotelNo) references Hotel(HotelNo));
+insert into Room values(1,1,"single room",25);
+insert into Room values(2,1,"double room",35);
+insert into Room values(3,1,"family room",45);
+insert into Room values(1,2,"single room",15);
+insert into Room values(2,2,"double room",27);
+insert into Room values(3,2,"family room",35);
+insert into Room values(1,3,"single room",18);
+insert into Room values(2,3,"double room",22);
+insert into Room values(3,3,"family room",30);
+insert into Room values(1,4,"single room",20);
+insert into Room values(2,4,"double room",30);
+insert into Room values(3,4,"family room",40);
+insert into Room values(1,5,"single room",30);
+insert into Room values(2,5,"double room",38);
+insert into Room values(3,5,"family room",45);
+insert into Room values(1,6,"single room",20);
+insert into Room values(2,6,"double room",27);
+insert into Room values(3,6,"family room",36);
+select * from Room;
+create table Guest(GuestNo int primary key,Guestname varchar(100),Guestaddress varchar(255)); 
+insert into Guest values(1,"vedant","sant tukaram nagar, pimpri");
+insert into Guest values(2,"amey","wakad,pune");
+insert into Guest values(3,"kedar","sion,mumbai");
+insert into Guest values(4,"soham","andheri,mumbai");
+insert into Guest values(5,"divyesh","kasarwadi,pune");
+insert into Guest values(6,"divyesh","kasarwadi,pune");
+insert into Guest values(7,"nishant","college road,nashik");
+insert into Guest values(8,"nishant","ashok stambh,nashik");
+insert into Guest values(9,"vishal","oxford street,london");
+insert into Guest values(10,"aniket","park lane,london");
+insert into Guest values(11,"paras","whitehall,london");
+insert into Guest values(12,"akalank","old street,london");
+select * from Guest;
+create table Booking(HotelNo int, GuestNo int, Datefrom date, Dateto date, RoomNo int, primary key(HotelNo, GuestNo, Datefrom), foreign key (HotelNo) references Hotel(HotelNo),  foreign key (RoomNo,HotelNo) references Room(RoomNo,HotelNo), foreign key (GuestNo) references Guest(GuestNo));
+insert into Booking values(1,1,'2024-01-01','2024-01-04',1);
+insert into Booking values(1,2,'2024-01-08','2024-01-12',2);
+insert into Booking values(2,3,'2024-04-09','2024-04-15',1);
+insert into Booking values(2,4,'2024-01-18','2024-01-22',2);
+insert into Booking values(3,5,'2024-02-01','2024-02-07',1);
+insert into Booking values(3,7,'2024-02-05','2024-02-10',3);
+insert into Booking values(4,6,'2024-02-12','2024-02-15',1);
+insert into Booking values(4,8,'2024-02-14','2024-02-15',3);
+insert into Booking values(5,9,'2024-04-10','2024-04-12',2);
+insert into Booking values(5,10,'2024-04-13','2024-04-22',3);
+insert into Booking values(6,11,'2024-04-17','2024-04-24',2);
+insert into Booking values(6,12,'2024-03-22','2024-03-28',3);
+select * from Booking;
+
+1) select sum(Price) as TotalRevenuePerNight
+from Room
+where Type = "double room";
+
+2) select r.RoomNo,r.Type,r.Price,g.Guestname
+from Room r
+join Hotel h
+on r.HotelNo = h.HotelNo
+left join Booking b
+on r.RoomNo = b.RoomNo and r.HotelNo = b.HotelNo
+left join Guest g
+on b.GuestNo = g.GuestNo
+where h.Name = "Grosvenor";
+
+3) select HotelNo, avg(BookingCount) as AvgBookingInApril
+from(
+select HotelNo, count(*) as BookingCount
+from Booking
+where month(Datefrom) = 4
+group by HotelNo, GuestNo
+) as HotelBookings
+group by HotelNo;
+
+4) create Index idx_roomno on Room(RoomNo);
+explain select * from Room where RoomNo = '3';
+
+5) select * from Hotel;
+
+6) select * from Hotel
+where City = "london";
+
+7) update Room
+set Price = Price * 1.05;
+
+8) select h.Name as HotelName, count(r.RoomNo) as NumberOfRooms
+from Hotel h
+join Room r
+on h.HotelNo = r.HotelNo
+where h.City = "london"
+group by h.HotelNo, h.Name;
+
+9) select * from Room
+where Type in("double room","family room") and Price<40.00
+order by Price asc;
+
+

@@ -1,0 +1,117 @@
+create database 10Practical;
+
+use 10Practical;
+
+CREATE TABLE Branch (
+    bname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+-- Insert data into Branch table
+INSERT INTO Branch (bname, city) VALUES ('Branch1', 'Bombay');
+INSERT INTO Branch (bname, city) VALUES ('Branch2', 'Delhi');
+INSERT INTO Branch (bname, city) VALUES ('Branch3', 'Pune');
+
+-- Insert data into Customers table
+INSERT INTO Customers (cname, city) VALUES ('Anil', 'Pune');
+INSERT INTO Customers (cname, city) VALUES ('Sunita', 'Delhi');
+INSERT INTO Customers (cname, city) VALUES ('Ravi', 'Bombay');
+
+-- Insert data into Deposit table
+INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES (1001, 'Anil', 'Branch1', 1500.00, '2024-01-15');
+INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES (1002, 'Sunita', 'Branch2', 2500.00, '2024-02-20');
+INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES (1003, 'Ravi', 'Branch1', 3500.00, '2024-03-25');
+
+-- Insert data into Borrow table
+INSERT INTO Borrow (loanno, cname, bname, amount) VALUES (2001, 'Anil', 'Branch1', 5000.00);
+INSERT INTO Borrow (loanno, cname, bname, amount) VALUES (2002, 'Sunita', 'Branch2', 7000.00);
+INSERT INTO Borrow (loanno, cname, bname, amount) VALUES (2003, 'Ravi', 'Branch1', 6000.00);
+
+a. Display names of all branches located in the city of Bombay
+
+SELECT bname 
+FROM Branch 
+WHERE city = 'Bombay';
+
++---------+
+| bname   |
++---------+
+| Branch1 |
++---------+
+
+b. Display account number and amount of depositors
+
+SELECT actno, amount 
+FROM Deposit;
+
++-------+---------+
+| actno | amount  |
++-------+---------+
+|  1001 | 1500.00 |
+|  1002 | 2500.00 |
+|  1003 | 3500.00 |
++-------+---------+
+
+C. Update the city of customer Anil from Pune to Mumbai
+
+UPDATE Customers 
+SET city = 'Mumbai' 
+WHERE cname = 'Anil';
+
+Rows matched: 1  Changed: 0  Warnings: 0
+
+d. Find the number of depositors in the bank
+
+SELECT COUNT(*) AS number_of_depositors 
+FROM Deposit;
+
++----------------------+
+| number_of_depositors |
++----------------------+
+|                    3 |
++----------------------+
+
+e. Calculate the minimum and maximum amount of customers
+
+SELECT MIN(amount) AS min_amount, MAX(amount) AS max_amount 
+FROM Deposit;
+
++------------+------------+
+| min_amount | max_amount |
++------------+------------+
+|    1500.00 |    3500.00 |
++------------+------------+
+
+f. Create an index on the Deposit table
+
+CREATE INDEX idx_deposit_cname ON Deposit(cname);
+
+g. Create a view on the Borrow table
+
+CREATE VIEW BorrowView AS 
+SELECT loanno, cname, bname, amount 
+FROM Borrow;

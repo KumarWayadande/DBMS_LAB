@@ -1,0 +1,115 @@
+-- 1. create the database and use it:
+create database hotel;
+use hotel;
+
+-- 2. create tables:
+-- hotel table:
+create table hotel (
+    hotelno int primary key,
+    name varchar(30),
+    city varchar(20)
+);
+
+-- room table:
+create table room (
+    roomno int,
+    hotelno int,
+    type varchar(50),
+    price int,
+    primary key(hotelno, roomno),
+    foreign key(hotelno) references hotel(hotelno)
+);
+
+-- guest table:
+create table guest (
+    guestno int primary key,
+    gname varchar(50),
+    gadder varchar(100)
+);
+
+-- booking table:
+create table booking (
+    hotelno int,
+    guestno int,
+    datefrom date,
+    dateto date,
+    roomno int,
+    primary key(hotelno, guestno, datefrom),
+    foreign key(hotelno) references hotel(hotelno),
+    foreign key(guestno) references guest(guestno),
+    foreign key(hotelno, roomno) references room(hotelno, roomno)
+);
+
+-- 3. insert data:
+-- insert into the hotel table:
+insert into hotel (hotelno, name, city) values
+(1, 'Grosvenor Hotel', 'London'),
+(2, 'Rajdhani Hotel', 'Pune'),
+(3, 'Blue Ridge Hotel', 'Mumbai');
+
+-- insert into the room table:
+insert into room (roomno, hotelno, type, price) values
+(101, 1, 'Single', 100.00),
+(102, 1, 'Double', 150.00),
+(201, 2, 'Single', 90.00),
+(202, 2, 'Double', 120.00),
+(301, 3, 'Single', 110.00),
+(302, 3, 'Double', 140.00);
+
+-- insert into the guest table:
+insert into guest values
+(1, 'rahul', 'pune'),
+(2, 'amit', 'mumbai'),
+(3, 'snehal', 'pune');
+
+-- insert into the booking table:
+insert into booking (hotelno, guestno, datefrom, dateto, roomno) values
+(1, 1, '2024-11-01', '2024-11-05', 101),
+(1, 2, '2024-11-03', '2024-11-07', 102),
+(2, 3, '2024-11-02', '2024-11-04', 201);
+
+-- 4. select queries:
+-- count the number of hotels:
+select count(*) as numberofhotels from hotel;
+
+-- join hotel and room to show room types and prices for "Grosvenor Hotel":
+select h.name, r.type, r.price
+from hotel h
+join room r on h.hotelno = r.hotelno
+where h.name = 'Grosvenor Hotel';
+
+-- count room types per hotel:
+select h.name, count(r.type) as typesofroom
+from hotel h
+join room r on h.hotelno = r.hotelno
+group by h.name;
+
+-- increase the price of all rooms by 5%:
+update room
+set price = price * 1.05;
+
+-- select rooms in hotels located in London:
+select * from room
+where hotelno in (select hotelno from hotel where city = 'London');
+
+-- select guests who booked at the "Grosvenor Hotel":
+select g.guestno, g.gname, g.gadder
+from guest g
+join booking b on g.guestno = b.guestno
+join hotel h on b.hotelno = h.hotelno
+where h.name = 'Grosvenor Hotel';
+
+-- count the number of rooms booked in London:
+select count(b.roomno)
+from booking b
+join hotel h on b.hotelno = h.hotelno
+where h.city = 'London';
+
+-- 5. create a view:
+create view hotelroom as
+select h.hotelno, h.name as hotelname, r.roomno, r.type, r.price
+from hotel h
+join room r on h.hotelno = r.hotelno;
+
+-- view data from hotelroom:
+select * from hotelroom;

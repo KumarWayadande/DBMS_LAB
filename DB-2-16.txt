@@ -1,0 +1,91 @@
+--MongoDB Java Connectivity
+
+1. sudo apt update
+2. sudo apt install -y mongodb
+3. sudo systemctl start mongodb
+   sudo systemctl enable mongodb
+4. mongo --version
+5. mongo
+6. exit
+
+------------------------------------------------------
+
+sudo apt install -y openjdk-11-jdk
+
+java -version
+
+nano ~/.bashrc
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+source ~/.bashrc
+
+------------------------------------------------------
+
+mkdir MongoDBJavaExample
+cd MongoDBJavaExample
+
+mkdir lib
+
+https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/5.2.0/mongodb-driver-sync-5.2.0.jar
+
+mv /(path/to)/mongodb-driver-sync-4.7.0.jar ./lib
+
+------------------------------------------------------
+
+touch MongoDBConnectionExample.java
+
+------------------------------------------------------
+--Write it in the Java File
+
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+
+public class MongoDBConnectionExample {
+    public static void main(String[] args) {
+        // Create a MongoDB client and connect to the database
+        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
+
+        // Connect to the 'test' database (or create it if it doesn't exist)
+        MongoDatabase database = mongoClient.getDatabase("test");
+
+        // Create a collection (similar to a table) if it doesn't exist
+        database.createCollection("exampleCollection");
+
+        // Insert a sample document into the collection
+        Document doc = new Document("name", "John Doe")
+                .append("age", 30)
+                .append("city", "Pune");
+        database.getCollection("exampleCollection").insertOne(doc);
+
+        System.out.println("Document inserted successfully!");
+
+        // Close the MongoDB connection
+        mongoClient.close();
+    }
+}
+
+-------------------------------------------------------
+
+javac -cp ".:lib/mongodb-driver-sync-4.7.0.jar" MongoDBConnectionExample.java
+
+java -cp ".:lib/mongodb-driver-sync-4.7.0.jar" MongoDBConnectionExample
+
+--You Should See Output : Document inserted successfully!
+
+mongo
+
+use test
+
+db.examplecollection.find().pretty()
+
+--You should see the inserted document
+
+{
+    "_id" : ObjectId("..."),
+    "name" : "John Doe",
+    "age" : 30,
+    "city" : "Pune"
+}
